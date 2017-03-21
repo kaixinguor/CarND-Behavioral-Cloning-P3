@@ -69,19 +69,18 @@ def build_model():
     model.add(Lambda(lambda x: (x / 255.0) - 0.5))
 
     # convolutional layer
-    model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation='relu'))
-    model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation='relu'))
-    model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation='relu'))
-    model.add(Convolution2D(64, 3, 3, activation='relu'))
-    model.add(Convolution2D(64, 3, 3, activation='relu'))
+    model.add(Convolution2D(8, 5, 5, subsample=(2,2), activation='relu'))
+    model.add(Convolution2D(16, 5, 5, subsample=(2,2), activation='relu'))
+    model.add(Convolution2D(32, 5, 5, subsample=(2,2), activation='relu'))
+
 
     model.add(Flatten())
 
     # fully connected
-    model.add(Dense(100,activation='relu'))
-    model.add(Dense(50, activation='relu'))
-    model.add(Dense(10, activation='relu'))
-    model.add(Activation('softmax'))
+    model.add(Dense(128))
+    model.add(Dense(64))
+    model.add(Dense(1))
+    return model
 
 
 def generator(samples, batch_size=32):
@@ -94,7 +93,7 @@ def generator(samples, batch_size=32):
             images = []
             angles = []
             for batch_sample in batch_samples:
-                name = './IMG/'+batch_sample[0].split('/')[-1]
+                name = './data/IMG/'+batch_sample[0].split('/')[-1]
                 center_image = cv2.imread(name)
                 center_angle = float(batch_sample[3])
                 images.append(center_image)
@@ -114,11 +113,14 @@ if __name__ == '__main__':
     samples = []
     with open(driving_log_file) as csvfile:
         reader = csv.reader(csvfile)
+
         for line in reader:
             samples.append(line)
+    print(samples[0])
+
+    samples = samples[1:]
 
     print(len(samples))
-    exit(0)
 
     train_samples, validation_samples = train_test_split(samples,test_size=0.2)
 
@@ -141,7 +143,7 @@ if __name__ == '__main__':
     history_object = model.fit_generator(train_generator, samples_per_epoch= len(train_samples),
                         validation_data = validation_generator, nb_val_samples = len(validation_samples),
                         nb_epoch = 3, verbose = 1)
-
+    model.save('model.h5')
     ### print the keys contained in the history object
     print(history_object.history.keys())
 
