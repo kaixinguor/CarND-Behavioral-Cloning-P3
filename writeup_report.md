@@ -18,7 +18,7 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/placeholder.png "Model Visualization"
+[image1]: ./output_images/error_nvidia1.png "Model Visualization"
 [image2]: ./examples/placeholder.png "Grayscaling"
 [image3]: ./examples/placeholder_small.png "Recovery Image"
 [image4]: ./examples/placeholder_small.png "Recovery Image"
@@ -53,6 +53,12 @@ The model.py file contains the code for training and saving the convolution neur
 ###Model Architecture and Training Strategy
 
 ####1. An appropriate model arcthiecture has been employed
+
+I start with NVIDIA model.
+
+The training / validation error is a bit strange. 
+
+![alt text][image1]
 
 My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
 
