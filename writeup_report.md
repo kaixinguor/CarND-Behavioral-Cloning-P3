@@ -62,18 +62,18 @@ The paper use 66x220x3 images in YUV color space.
 
 My network is very similar with NVIDIA's network. It is composed of five convolutional layers and three fully connected layers.
 
-The implementation is in the function `nvidia_model()` in lines 56 through 97 in the file `./model.py`. 
+The implementation is in the function `nvidia_model()` in lines 56 through 99 in the file `./model.py`. 
 The final model architecture consists the following layers and layer sizes:
 
 * Input RGB image (3@160x320)
 * Cropping layer (3@70x320)
 * Normalization layer (3@70x320)
-* Conv layer (24 filters with size 5x5, stride 2x2, padding 'valid') + Relu activation. Output is 24@32x158
-* Conv layer (36 filters with size 5x5, stride 2x2, padding 'valid') + Relu activation. Output is 36@14x77
-* Conv layer (48 filters with size 5x5, stride 2x2, padding 'valid') + Relu activation. Output is 48@5x37
-* Conv layer (64 filters with size 3x3, stride 1x1, padding 'valid') + Relu activation. Output is 64@3x35
-* Conv layer (64 filters with size 3x3, stride 1x1, padding 'valid') + Relu activation. Output is 64@1x33
-* Flatten -> 2112 nodes
+* Conv layer (24 filters with size 5x5, stride 2x2, padding 'valid') + Relu activation. Output is 24@33x158
+* Conv layer (36 filters with size 5x5, stride 2x2, padding 'valid') + Relu activation. Output is 36@15x77
+* Conv layer (48 filters with size 5x5, stride 2x2, padding 'valid') + Relu activation. Output is 48@6x37
+* Conv layer (64 filters with size 3x3, stride 1x1, padding 'valid') + Relu activation. Output is 64@4x35
+* Conv layer (64 filters with size 3x3, stride 1x1, padding 'valid') + Relu activation. Output is 64@2x33
+* Flatten -> 4224 nodes
 * Fully connected + Relu activation. Output 100 nodes.
 * Fully connected + Relu activation. Output 50 nodes.
 * Fully connected + Relu activation. Output 10 nodes.
@@ -81,9 +81,9 @@ The final model architecture consists the following layers and layer sizes:
 
 The model takes RGB images of original size (with lowest resolution 160x320x3). Cropping and normalization are added directly as beginning layers so that the computation could leverage the GPU and the same operation will be done on test image automatically.
 
-The network first crops the image to remove upper part which contain majorly far background like sky, trees which would not be very helpful for driving decision. The lowest part is also removed since it contains car hook.
+The network first crops the image to remove the upper part which contains majorly far background like sky, trees which would not be very helpful for driving decision. The lowest part is also removed since it contains car hook.
 
- The following figure shows a comparison between original images (upper row) and cropped images (bottom):
+ The following figure shows a comparison between the original images (upper row) and the cropped images (bottom):
 
 ![alt text][image1]
 
@@ -96,31 +96,31 @@ The following layers look like the architecture introduced in the paper, I add d
 
 I use sample images to train the model. 
 
-Training with my own data can achieve similar behavior and keep the car stay on the track too.  But the trajecotory does not look very smooth. I guess the reason is I'm a terrible driver...
+Training with my own data can achieve similar behavior and keep the car stay on the track too.  But the trajectory does not look very smooth. I guess the reason is I'm a terrible driver...
 
 Images from the left and the right camera are also added for learning recovering. A correction steering angle is added (0.2 for left camera images and -0.2 for right angle images).
 
-I flip every image (line 127 - 128) to augment data. So that I have more image for training, and the distribution of data for left and right turn is balanced.
+I flip every image (line 127 - 128) to augment data. So that I have more images for training, and the distribution of data for left and right turn is balanced.
 
 ![alt text][image2]
 
 The distribution of steering angle in the data is like this, where zero angle images are dominant.
 ![alt text][image4]
 
-So I removed randomly 80% of the images with zero angle, to let the distribution more balanced, like this
+So I removed randomly 80% of the images with zero angle, to let the distribution be more balanced, like this
 ![alt text][image5]
 
-But unfortunately, I did not observe much improve in the performance.
+But I did not observe improvement in the performance.
 
 ####3. Creation of the Training Set & Training Process
 
-I random shuffled the data set and put 20%  of the data into a validation set, in order to get an idea about whether the model is over or under fitting. . For splitting the data I use `sklearn.model_selection.train_test_split` in line 219 in `./model.py`.
+I random shuffled the data set and put 20% of the data into a validation set, in order to get an idea about whether the model is over or under fitting. . For splitting the data I use `sklearn.model_selection.train_test_split` in line 219 in `./model.py`.
 
 The model uses an adam optimizer, so that the learning rate is adapted automatically during training. (`./model.py` line 229-230). The training process optimizes mean square error between network output and ground truth steering angle.
 
 Finally 21822 images are used in the training, and 5460 images are used in the validation.
 
-I used 20 epochs. The following figure shows that the training error does not decrease after 17~18 epochs.
+I used 20 epochs. The following figure shows that the training error does not decrease after around 16 epochs.
 
 ![alt text][image3]
 
@@ -131,17 +131,17 @@ However, in all the experiments, I did not observe much overfitting phenomenon, 
 
 The final step was to run the simulator to see how well the car was driving around track one. 
 
-It was actually suprising that using only the sample images to training three epochs already enables the car to drive autonomously around the track without leaving the road.
+It was actually suprising that using only the sample images to train three epochs already can enable the car to drive autonomously around the track without leaving the road.
 
 Here's a [link to my video result](./run4_track1.mp4)
 
 ### Discussion
 
-*  If the driving condition contains a lot of change in lighting condition, then maybe transform RGB image into other color space will increase robustness (In NVIDIA's paper, they actually use YUV space). But here in the simulator, there is not much change in the illumination. So I use directly RGB color space.
+* If the driving condition contains a lot of change in lighting, then maybe transforming RGB image into other color space will increase robustness (In NVIDIA's paper, they actually use YUV color space). But here in the simulator, there is not much change in the illumination. So I use directly RGB color space.
 
-* The fact of reducing number of sample images with zero steering angle actually has an effect of driving the car more adventuously (drift to close to the lane, but being able to recover it)
+* In my experiments, removing a part of sample images with zero steering angle actually had an effect of driving the car more adventuously (drift to close to the lane, but being able to recover it)
 
-* Maybe collecting recovering data from off-the-lane would have better recovering information as it covers more possibilities than just using left and right camera. Leave to future exploration.
+* Maybe collecting recovering data from off-the-lane would have better recovering information as it covers more possibilities than just using left and right camera. But using recovering images is crucial. The experiments showed that training only using images from center camera does not work. Leave to future exploration.
 
 
  
