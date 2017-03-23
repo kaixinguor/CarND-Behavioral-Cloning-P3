@@ -71,16 +71,16 @@ def nvidia_model():
 
     # five convolutional layers
     model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation='relu'))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
     model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation='relu'))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
     model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation='relu'))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
 
     model.add(Convolution2D(64, 3, 3, activation='relu'))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
     model.add(Convolution2D(64, 3, 3, activation='relu'))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
 
     # flatten
     model.add(Flatten())
@@ -184,7 +184,7 @@ def data_exploration():
 
     ax_arr[1].imshow(np.fliplr(img))
     ax_arr[1].set_title('flipped image', fontsize=20)
-    ax_arr[0].set_xlabel('steering {0:.4f}'.format(-angle), fontsize=20)
+    ax_arr[1].set_xlabel('steering {0:.4f}'.format(-angle), fontsize=20)
 
     plt.savefig('output_images/image_flip.png')
     plt.show()
@@ -204,6 +204,8 @@ if __name__ == '__main__':
 
     samples = preprocess_data(samples)
     angles = [float(sample[3]) for sample in samples]
+
+    print(len(samples))
     # plt.hist(angles)
     # plt.savefig('output_images/angle_hist_sample.png')
     # plt.show()
