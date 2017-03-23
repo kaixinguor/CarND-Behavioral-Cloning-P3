@@ -133,7 +133,7 @@ The final step was to run the simulator to see how well the car was driving arou
 
 It was actually suprising that using only the sample images to train three epochs already can enable the car to drive autonomously around the track without leaving the road.
 
-Here's a [link to my video result](./run4_track1.mp4)
+Here's a [link to my video result](./video.mp4)
 
 ### Discussion
 
